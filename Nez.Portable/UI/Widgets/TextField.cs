@@ -64,11 +64,12 @@ namespace Nez.UI
         List<float> glyphPositions = new List<float>(15);
 
         float _preferredWidth = 150;
-        TextFieldStyle style;
+        protected TextFieldStyle style;
         string messageText;
         protected string displayText = string.Empty;
         ITextFieldFilter filter;
-        bool focusTraversal = true, onlyFontChars = true, disabled;
+        bool focusTraversal = true, onlyFontChars = true;
+        protected bool disabled;
         int textHAlign = AlignInternal.left;
         float selectionX, selectionWidth;
         StringBuilder _textBuffer = new StringBuilder();
@@ -83,7 +84,7 @@ namespace Nez.UI
         int maxLength = 0;
 
         float blinkTime = 0.5f;
-        bool cursorOn = true;
+        protected bool cursorOn = true;
         float lastBlink;
 
         bool programmaticChangeEvents;
@@ -92,7 +93,8 @@ namespace Nez.UI
         ITimer _keyRepeatTimer;
         float _keyRepeatTime = 0.2f;
 
-
+        public TextField()
+        { }
         public TextField(string text,TextFieldStyle style)
         {
             setStyle(style);
@@ -731,7 +733,7 @@ namespace Nez.UI
         }
 
 
-        void blink()
+        protected void blink()
         {
             if ((Time.time - lastBlink) > blinkTime)
             {
