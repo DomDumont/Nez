@@ -24,7 +24,7 @@ namespace Nez.UI
         public int firstLineShowing = 0;
 
         /** Number of lines showed by the text area **/
-        private int linesShowing = 2;
+        private int linesShowing = 3;
 
         public override float preferredHeight
         {
@@ -116,7 +116,7 @@ namespace Nez.UI
                 for (int i = firstLineShowing * 2; i < (firstLineShowing + linesShowing) * 2 && i < linesBreak.Count; i += 2)
                 {
                     //font.draw(batch,displayText,x,y + offsetY,linesBreak.items[i],linesBreak.items[i + 1],0,Align.left,false);
-                    var t = displayText.Substring(linesBreak[i],linesBreak[i + 1]);
+                    var t = displayText.Substring(linesBreak[i],linesBreak[i + 1] - linesBreak[i]);
                     graphics.batcher.drawString(font,t,new Vector2(x + bgLeftWidth + textOffset,y + textY + yOffset + lineOffset),col);
 
                     lineOffset += font.lineHeight;
