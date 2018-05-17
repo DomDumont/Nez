@@ -181,6 +181,11 @@ namespace Nez.UI
 
         void IKeyboardListener.keyDown(Keys key)
         {
+            OnKeyDown(key);
+        }
+
+        protected void OnKeyDown(Keys key)
+        {
             if (disabled)
                 return;
 
@@ -288,7 +293,6 @@ namespace Nez.UI
                 _keyRepeatTimer = Core.schedule(_keyRepeatTime,true,this,t => (t.context as IKeyboardListener).keyDown(key));
             }
         }
-
 
         void IKeyboardListener.keyPressed(Keys key,char character)
         {
@@ -1110,7 +1114,7 @@ namespace Nez.UI
         }
 
 
-        protected void moveCursor(bool forward,bool jump)
+        protected virtual void moveCursor(bool forward,bool jump)
         {
             var limit = forward ? text.Length : 0;
             var charOffset = forward ? 0 : -1;

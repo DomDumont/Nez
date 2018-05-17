@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Nez.UI
 {
-    public class TextArea :TextField
+    public class TextArea :TextField, IKeyboardListener
     {
         List<int> linesBreak = new List<int>();
 
@@ -164,11 +165,79 @@ namespace Nez.UI
                     linesBreak.Add(lineStart);
                     linesBreak.Add(text.Length);
                 }
-                // showCursor();
+                showCursor();
 
             }
         }
 
+        private void showCursor()
+        {
+            updateCurrentLine();
+            updateFirstLineShowing();
+        }
+
+        private void updateFirstLineShowing()
+        {
+            if (_cursorLine != firstLineShowing)
+            {
+                int step = _cursorLine >= firstLineShowing ? 1 : -1;
+                while (firstLineShowing > _cursorLine || firstLineShowing + linesShowing - 1 < _cursorLine)
+                {
+                    firstLineShowing += step;
+                }
+            }
+        }
+
+        /** Calculates the text area line for the given cursor position **/
+        private int calculateCurrentLineIndex(int cursor)
+        {
+            int index = 0;
+            while (index < linesBreak.Count && cursor > linesBreak[index])
+            {
+                index++;
+            }
+            return index;
+        }
+
+        protected override void moveCursor(bool forward,bool jump)
+        {
+            int count = forward ? 1 : -1;
+            int index = (_cursorLine * 2) + count;
+            if (index >= 0 && index + 1 < linesBreak.Count && linesBreak[index] == cursor
+                && linesBreak[index + 1] == cursor)
+            {
+                _cursorLine += count;
+                if (jump)
+                {
+                    base.moveCursor(forward,jump);
+                }
+                showCursor();
+            }
+            else
+            {
+                base.moveCursor(forward,jump);
+            }
+            updateCurrentLine();
+        }
+
+        /** Updates the current line, checking the cursor position in the text **/
+        private void updateCurrentLine()
+        {
+            int index = calculateCurrentLineIndex(cursor);
+            int line = index / 2;
+            // Special case when cursor moves to the beginning of the line from the end of another and a word
+            // wider than the box
+            if (index % 2 == 0 || index + 1 >= linesBreak.Count || cursor != linesBreak[index]
+                || linesBreak[index + 1] != linesBreak[index])
+            {
+                if (line < linesBreak.Count / 2 || text.Length == 0 || text[text.Length - 1] == ENTER_ANDROID
+                    || text[text.Length - 1] == ENTER_DESKTOP)
+                {
+                    _cursorLine = line;
+                }
+            }
+            updateFirstLineShowing();   // fix for drag-selecting text out of the TextArea's bounds
+        }
         protected override void sizeChanged()
         {
             lastText = null; // Cause calculateOffsets to recalculate the line breaks.
@@ -180,6 +249,12 @@ namespace Nez.UI
             float availableHeight = getHeight() - (background == null ? 0 : background.getBottomHeight() + background.getTopHeight());
             linesShowing = (int)Math.floor(availableHeight / font.getLineHeight());
             */
+        }
+
+        void IKeyboardListener.keyDown(Keys key)
+        {
+            OnKeyDown(key);
+            showCursor();
         }
     }
 }
