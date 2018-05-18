@@ -19,6 +19,8 @@ namespace Nez.UI
         /** Current line for the cursor **/
         int _cursorLine = 0;
 
+        /** Variable to maintain the x offset of the cursor when moving up and down. If it's set to -1, the offset is reset **/
+        float _moveOffset;
         /** Last text processed. This attribute is used to avoid unnecessary computations while calculating offsets **/
         private String lastText;
 
@@ -265,6 +267,69 @@ namespace Nez.UI
             showCursor();
         }
 
+        /** Returns total number of lines that the text occupies **/
+        public int getLines()
+        {
+            return linesBreak.Count / 2 + (newLineAtEnd() ? 1 : 0);
+        }
+
+        /** Returns if there's a new line at then end of the text **/
+        public bool newLineAtEnd()
+        {
+            return text.Length != 0
+                && (text[text.Length - 1] == ENTER_ANDROID || text[text.Length - 1] == ENTER_DESKTOP);
+        }
+
+        /** Moves the cursor to the given number line **/
+        public void moveCursorLine(int line)
+        {
+            if (line < 0)
+            {
+                _cursorLine = 0;
+                cursor = 0;
+                _moveOffset = -1;
+            }
+            else if (line >= getLines())
+            {
+                int newLine = getLines() - 1;
+                cursor = text.Length;
+                if (line > getLines() || newLine == _cursorLine)
+                {
+                    _moveOffset = -1;
+                }
+                _cursorLine = newLine;
+            }
+            else if (line != _cursorLine)
+            {
+                if (_moveOffset < 0)
+                {
+                    _moveOffset = linesBreak.Count <= _cursorLine * 2 ? 0
+                        : glyphPositions[cursor] - glyphPositions[linesBreak[_cursorLine * 2]];
+                }
+                _cursorLine = line;
+                cursor = _cursorLine * 2 >= linesBreak.Count ? text.Length : linesBreak[_cursorLine * 2];
+                while (cursor < text.Length && cursor <= linesBreak[_cursorLine * 2 + 1] - 1
+                    && glyphPositions[cursor] - glyphPositions[linesBreak[_cursorLine * 2]] < _moveOffset)
+                {
+                    cursor++;
+                }
+                showCursor();
+            }
+        }
+
+        protected override void OnKeyDown(Keys key)
+        {
+            base.OnKeyDown(key);
+
+            if (key == Keys.Up)
+            {
+                moveCursorLine(_cursorLine - 1);
+            }
+            else if (key == Keys.Down)
+            {
+                moveCursorLine(_cursorLine + 1);
+            }
+        }
 
         protected override void drawSelection(IDrawable selection,Graphics graphics,BitmapFont font,float x,float y)
         {

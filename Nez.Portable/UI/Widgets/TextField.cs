@@ -184,7 +184,7 @@ namespace Nez.UI
             OnKeyDown(key);
         }
 
-        protected void OnKeyDown(Keys key)
+        protected virtual void OnKeyDown(Keys key)
         {
             if (disabled)
                 return;
