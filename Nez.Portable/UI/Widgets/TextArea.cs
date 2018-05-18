@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Nez.BitmapFonts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,6 +171,13 @@ namespace Nez.UI
             }
         }
 
+        protected override bool continueCursor(int index,int offset)
+        {
+            int pos = calculateCurrentLineIndex(index + offset);
+            return base.continueCursor(index,offset) && (pos < 0 || pos >= linesBreak.Count - 2 || (linesBreak[pos + 1] != index)
+                || (linesBreak[pos + 1] == linesBreak[pos + 2]));
+        }
+
         private void showCursor()
         {
             updateCurrentLine();
@@ -243,18 +251,92 @@ namespace Nez.UI
             lastText = null; // Cause calculateOffsets to recalculate the line breaks.
 
             // The number of lines showed must be updated whenever the height is updated
-            /*
+
             BitmapFont font = style.font;
-            Drawable background = style.background;
-            float availableHeight = getHeight() - (background == null ? 0 : background.getBottomHeight() + background.getTopHeight());
-            linesShowing = (int)Math.floor(availableHeight / font.getLineHeight());
-            */
+            IDrawable background = style.background;
+            float availableHeight = getHeight() - (background == null ? 0 : background.bottomHeight + background.topHeight);
+            linesShowing = (int)Math.Floor(availableHeight / font.lineHeight);
+
         }
 
         void IKeyboardListener.keyDown(Keys key)
         {
             OnKeyDown(key);
             showCursor();
+        }
+
+
+        protected override void drawSelection(IDrawable selection,Graphics graphics,BitmapFont font,float x,float y)
+        {
+
+
+
+            int i = firstLineShowing * 2;
+            float offsetY = 0;
+            int minIndex = Math.Min(cursor,selectionStart);
+            int maxIndex = Math.Max(cursor,selectionStart);
+            while (i + 1 < linesBreak.Count && i < (firstLineShowing + linesShowing) * 2)
+            {
+
+                int lineStart = linesBreak[i];
+                int lineEnd = linesBreak[i + 1];
+
+                if (!((minIndex < lineStart && minIndex < lineEnd && maxIndex < lineStart && maxIndex < lineEnd)
+                    || (minIndex > lineStart && minIndex > lineEnd && maxIndex > lineStart && maxIndex > lineEnd)))
+                {
+
+                    int start = Math.Max(linesBreak[i],minIndex);
+                    int end = Math.Min(linesBreak[i + 1],maxIndex);
+
+                    float selectionX = glyphPositions[start] - glyphPositions[linesBreak[i]];
+                    float selectionWidth = glyphPositions[end] - glyphPositions[start];
+
+                    //selection.draw(batch,x + selectionX + fontOffset,y - textHeight - font.getDescent() - offsetY,selectionWidth,
+                    //    font.getLineHeight());
+
+                    selection.draw(graphics,x + selectionX + renderOffset + fontOffset,y - font.descent / 2,selectionWidth,textHeight,Color.White);
+                }
+
+                offsetY += font.lineHeight;
+                i += 2;
+            }
+        }
+
+
+        protected override void drawCursor(IDrawable cursorPatch,Graphics graphics,BitmapFont font,float x,float y)
+        {
+            float tempOffset;
+            if (cursor >= glyphPositions.Count || _cursorLine * 2 >= linesBreak.Count)
+                tempOffset = 0;
+            else
+                tempOffset = glyphPositions[cursor] - glyphPositions[linesBreak[_cursorLine * 2]];
+
+            //cursorPatch.draw(graphics,
+            //    x + tempOffset + glyphPositions[cursor] - glyphPositions[visibleTextStart] + fontOffset - 1 /*font.getData().cursorX*/,
+            //    y - font.descent / 2,cursorPatch.minWidth,textHeight,color);
+
+            cursorPatch.draw(graphics,x + tempOffset + fontOffset - 1 /*+ font.getData().cursorX*/,
+            y - font.descent / 2 + (_cursorLine - firstLineShowing) * font.lineHeight,cursorPatch.minWidth,
+            font.lineHeight,color);
+
+        }
+
+        protected override float getTextY(BitmapFont font,IDrawable background)
+        {
+            float height = getHeight();
+            float textY = textHeight / 2 + font.descent;
+            if (background != null)
+            {
+                float bottom = background.bottomHeight;
+                textY = textY + (height - background.topHeight - bottom) / 2 + bottom;
+            }
+            else
+            {
+                textY = textY + height / 2;
+            }
+            //todo check this if (font.usesIntegerPositions())
+            //    textY = (int)textY;
+            return textY;
         }
     }
 }

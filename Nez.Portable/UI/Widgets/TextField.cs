@@ -61,7 +61,7 @@ namespace Nez.UI
         protected int cursor, selectionStart;
         protected bool hasSelection;
         protected bool writeEnters;
-        List<float> glyphPositions = new List<float>(15);
+        protected List<float> glyphPositions = new List<float>(15);
 
         float _preferredWidth = 150;
         protected TextFieldStyle style;
@@ -71,7 +71,7 @@ namespace Nez.UI
         bool focusTraversal = true, onlyFontChars = true;
         protected bool disabled;
         int textHAlign = AlignInternal.left;
-        float selectionX, selectionWidth;
+        protected float selectionX, selectionWidth;
         StringBuilder _textBuffer = new StringBuilder();
 
         bool passwordMode;
@@ -79,8 +79,8 @@ namespace Nez.UI
         char passwordCharacter = '*';
 
         protected float fontOffset, textHeight, textOffset;
-        float renderOffset;
-        int visibleTextStart, visibleTextEnd;
+        protected float renderOffset;
+        protected int visibleTextStart, visibleTextEnd;
         int maxLength = 0;
 
         float blinkTime = 0.5f;
@@ -633,7 +633,7 @@ namespace Nez.UI
         }
 
 
-        protected float getTextY(BitmapFont font,IDrawable background)
+        protected virtual float getTextY(BitmapFont font,IDrawable background)
         {
             float height = getHeight();
             float textY = textHeight / 2 + font.descent;
@@ -659,13 +659,13 @@ namespace Nez.UI
         /// <param name="font">Font.</param>
         /// <param name="x">The x coordinate.</param>
         /// <param name="y">The y coordinate.</param>
-        protected void drawSelection(IDrawable selection,Graphics graphics,BitmapFont font,float x,float y)
+        protected virtual void drawSelection(IDrawable selection,Graphics graphics,BitmapFont font,float x,float y)
         {
             selection.draw(graphics,x + selectionX + renderOffset + fontOffset,y - font.descent / 2,selectionWidth,textHeight,Color.White);
         }
 
 
-        protected void drawCursor(IDrawable cursorPatch,Graphics graphics,BitmapFont font,float x,float y)
+        protected virtual void drawCursor(IDrawable cursorPatch,Graphics graphics,BitmapFont font,float x,float y)
         {
             cursorPatch.draw(graphics,
                 x + textOffset + glyphPositions[cursor] - glyphPositions[visibleTextStart] + fontOffset - 1 /*font.getData().cursorX*/,
@@ -1130,7 +1130,7 @@ namespace Nez.UI
         }
 
 
-        protected bool continueCursor(int index,int offset)
+        protected virtual bool continueCursor(int index,int offset)
         {
             var c = text[index + offset];
             return isWordCharacter(c);
