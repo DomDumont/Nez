@@ -21,7 +21,7 @@ namespace Nez
 		/// <summary>
 		/// how fast the camera closes the distance to the target position
 		/// </summary>
-		public float followLerp = 0.2f;
+		public float followLerp = 0.02f;
 
 		/// <summary>
 		/// when in CameraWindow mode the width/height is used as a bounding box to allow movement within it without moving the camera.
