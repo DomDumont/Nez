@@ -173,6 +173,40 @@ namespace Nez.UI
             }
         }
 
+        public override TextField setSelection(int selectionStart,int selectionEnd)
+        {
+            base.setSelection(selectionStart,selectionEnd);
+            updateCurrentLine();
+            return this;
+        }
+
+        protected override void setCursorPosition(float x,float y)
+        {
+            _moveOffset = -1;
+
+            IDrawable background = style.background;
+            BitmapFont font = style.font;
+
+            float height = getHeight();
+
+            if (background != null)
+            {
+                height -= background.topHeight;
+                x -= background.leftWidth;
+            }
+            x = Math.Max(0,x);
+            if (background != null)
+            {
+                y -= background.topHeight;
+            }
+
+            _cursorLine = (int)Math.Floor((height - y) / font.lineHeight) + firstLineShowing;
+            _cursorLine = Math.Max(0,Math.Min(_cursorLine,getLines() + 1));
+
+            base.setCursorPosition(x,y);
+            updateCurrentLine();
+        }
+
         protected override bool continueCursor(int index,int offset)
         {
             int pos = calculateCurrentLineIndex(index + offset);

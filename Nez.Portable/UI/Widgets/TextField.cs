@@ -1035,7 +1035,7 @@ namespace Nez.UI
         /// </summary>
         /// <param name="selectionStart">Selection start.</param>
         /// <param name="selectionEnd">Selection end.</param>
-        public TextField setSelection(int selectionStart,int selectionEnd)
+        public virtual TextField setSelection(int selectionStart,int selectionEnd)
         {
             Assert.isFalse(selectionStart < 0,"selectionStart must be >= 0");
             Assert.isFalse(selectionEnd < 0,"selectionEnd must be >= 0");
@@ -1075,7 +1075,7 @@ namespace Nez.UI
         }
 
 
-        protected void setCursorPosition(float x,float y)
+        protected virtual void setCursorPosition(float x,float y)
         {
             lastBlink = 0;
             cursorOn = false;
