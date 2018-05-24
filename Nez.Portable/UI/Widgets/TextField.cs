@@ -1102,13 +1102,13 @@ namespace Nez.UI
         }
 
 
-        protected void goHome()
+        protected virtual void goHome()
         {
             cursor = 0;
         }
 
 
-        protected void goEnd()
+        protected virtual void goEnd()
         {
             cursor = text.Length;
         }

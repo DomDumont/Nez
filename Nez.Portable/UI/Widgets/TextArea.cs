@@ -20,7 +20,7 @@ namespace Nez.UI
         int _cursorLine = 0;
 
         /** Variable to maintain the x offset of the cursor when moving up and down. If it's set to -1, the offset is reset **/
-        float _moveOffset;
+        float _moveOffset = -1;
         /** Last text processed. This attribute is used to avoid unnecessary computations while calculating offsets **/
         private String lastText;
 
@@ -28,7 +28,7 @@ namespace Nez.UI
         public int firstLineShowing = 0;
 
         /** Number of lines showed by the text area **/
-        private int linesShowing = 3;
+        private int linesShowing = 0;
 
         public override float preferredHeight
         {
@@ -200,7 +200,7 @@ namespace Nez.UI
                 y -= background.topHeight;
             }
 
-            _cursorLine = (int)Math.Floor((height - y) / font.lineHeight) + firstLineShowing;
+            _cursorLine = (int)Math.Floor((height - (height - y)) / font.lineHeight) + firstLineShowing;
             _cursorLine = Math.Max(0,Math.Min(_cursorLine,getLines() + 1));
 
             base.setCursorPosition(x,y);
@@ -436,6 +436,31 @@ namespace Nez.UI
             //todo check this if (font.usesIntegerPositions())
             //    textY = (int)textY;
             return textY;
+        }
+
+        protected override void goHome()
+        {
+            if (false)
+            {
+                cursor = 0;
+            }
+            else if (_cursorLine * 2 < linesBreak.Count)
+            {
+                cursor = linesBreak[_cursorLine * 2];
+            }
+        }
+
+
+        protected override void goEnd()
+        {
+            if (_cursorLine >= getLines())
+            {
+                cursor = text.Length;
+            }
+            else if (_cursorLine * 2 + 1 < linesBreak.Count)
+            {
+                cursor = linesBreak[_cursorLine * 2 + 1];
+            }
         }
     }
 }
