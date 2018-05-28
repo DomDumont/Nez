@@ -106,7 +106,7 @@ namespace Nez.UI
             calculateOffsets();
 
             if (_isFocused && hasSelection && selection != null)
-                drawSelection(selection,graphics,font,x + bgLeftWidth,y + textY + yOffset);
+                drawSelection(selection,graphics,font,x + bgLeftWidth,y + yOffset);
 
             if (displayText.Length == 0)
             {
@@ -121,7 +121,7 @@ namespace Nez.UI
                 {
                     //font.draw(batch,displayText,x,y + offsetY,linesBreak.items[i],linesBreak.items[i + 1],0,Align.left,false);
                     var t = displayText.Substring(linesBreak[i],linesBreak[i + 1] - linesBreak[i]);
-                    graphics.batcher.drawString(font,t,new Vector2(x + bgLeftWidth + textOffset,y + textY + yOffset + lineOffset),col);
+                    graphics.batcher.drawString(font,t,new Vector2(x + bgLeftWidth + textOffset,y + yOffset + lineOffset),col);
 
                     lineOffset += font.lineHeight;
                 }
@@ -131,7 +131,7 @@ namespace Nez.UI
             {
                 blink();
                 if (cursorOn && style.cursor != null)
-                    drawCursor(style.cursor,graphics,font,x + bgLeftWidth,y + textY + yOffset);
+                    drawCursor(style.cursor,graphics,font,x + bgLeftWidth,y + yOffset);
             }
         }
         #endregion
